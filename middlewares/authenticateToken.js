@@ -1,16 +1,16 @@
 const jwt = require('jsonwebtoken');
-const secret = process.env.JWT_SECRET; // Adjust according to your secret
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Get token from Authorization header
+    const token = req.header('Authorization').replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
 
-  if (token == null) return res.sendStatus(401); // If no token is provided, send a 401 status
-  jwt.verify(token, secret, (err, user) => {
-    if (err) return res.sendStatus(403); // If the token is invalid, send a 403 status
-    req.user = user;
-    next();
-  });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded; // Dekode token untuk mendapatkan informasi user
+        next();
+    } catch (err) {
+        res.status(400).json({ error: 'Invalid token.' });
+    }
 };
 
 module.exports = authenticateToken;

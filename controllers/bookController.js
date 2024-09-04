@@ -1,93 +1,139 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Get all books
-const getBooks = async (req, res) => {
-  try {
-    const books = await prisma.book.findMany({
-      include: {
-        author: true,
-        category: true,
-        user: true,
-      },
-    });
-    res.status(200).json(books);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get a single book by ID
-const getBookById = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const book = await prisma.book.findUnique({
-      where: { id: Number(id) },
-      include: {
-        author: true,
-        category: true,
-        user: true,
-      },
-    });
-    if (book) {
-      res.status(200).json(book);
-    } else {
-      res.status(404).json({ error: 'Book not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Create a new book
 const createBook = async (req, res) => {
-  const { title, authorId, categoryId, userId } = req.body;
-  try {
-    const newBook = await prisma.book.create({
-      data: {
-        title,
-        author: { connect: { id: Number(authorId) } },
-        category: { connect: { id: Number(categoryId) } },
-        user: userId ? { connect: { id: Number(userId) } } : undefined,
-      },
-    });
-    res.status(201).json(newBook);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const { title, authorId, categoryId, qty } = req.body;
+    const userId = req.user.id; // Menggunakan userId dari token
+
+    if (!title || !authorId || !categoryId || qty === undefined) {
+        return res.status(400).json({ error: 'Title, authorId, categoryId, and qty are required' });
+    }
+
+    try {
+        const book = await prisma.book.create({
+            data: {
+                title,
+                author: { connect: { id: Number(authorId) } },
+                category: { connect: { id: Number(categoryId) } },
+                qty,
+                user: { connect: { id: Number(userId) } } // Menyimpan user yang membuat buku
+            }
+        });
+        res.status(201).json(book);
+    } catch (err) {
+        console.error('Error creating book:', err);
+        res.status(500).json({
+            error: 'An error occurred while creating the book.',
+            details: err.message
+        });
+    }
 };
 
-// Update a book
+const getAllBooks = async (req, res) => {
+    try {
+        const books = await prisma.book.findMany({
+            include: {
+                author: true,
+                category: true,
+                user: true // Menampilkan user yang membuat buku
+            }
+        });
+        res.json(books);
+    } catch (err) {
+        console.error('Error fetching books:', err);
+        res.status(500).json({
+            error: 'An error occurred while fetching books.',
+            details: err.message
+        });
+    }
+};
+
+const getBookById = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Valid ID is required' });
+    }
+
+    try {
+        const book = await prisma.book.findUnique({
+            where: { id: parseInt(id, 10) }, // Ensure `id` is an integer
+            include: {
+                author: true,
+                category: true,
+                user: true
+            }
+        });
+
+        if (!book) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+
+        res.json(book);
+    } catch (err) {
+        console.error('Error fetching book by ID:', err);
+        console.log('ID received:', id);
+        res.status(500).json({
+            error: 'An error occurred while fetching the book.',
+            details: err.message
+        });
+    }
+};
+
 const updateBook = async (req, res) => {
-  const { id } = req.params;
-  const { title, authorId, categoryId, userId } = req.body;
-  try {
-    const updatedBook = await prisma.book.update({
-      where: { id: Number(id) },
-      data: {
-        title,
-        author: authorId ? { connect: { id: Number(authorId) } } : undefined,
-        category: categoryId ? { connect: { id: Number(categoryId) } } : undefined,
-        user: userId ? { connect: { id: Number(userId) } } : undefined,
-      },
-    });
-    res.status(200).json(updatedBook);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const { id } = req.params;
+    const { title, authorId, categoryId, qty } = req.body;
+
+    if (!id || !title || !authorId || !categoryId || qty === undefined) {
+        return res.status(400).json({ error: 'ID, title, authorId, categoryId, and qty are required' });
+    }
+
+    try {
+        const book = await prisma.book.update({
+            where: { id: Number(id) },
+            data: {
+                title,
+                author: { connect: { id: Number(authorId) } },
+                category: { connect: { id: Number(categoryId) } },
+                qty
+            }
+        });
+        res.json(book);
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        console.error('Error updating book:', err);
+        res.status(500).json({
+            error: 'An error occurred while updating the book.',
+            details: err.message
+        });
+    }
 };
 
-// Delete a book
 const deleteBook = async (req, res) => {
-  const { id } = req.params;
-  try {
-    await prisma.book.delete({
-      where: { id: Number(id) },
-    });
-    res.status(200).json({ message: 'Book deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const { id } = req.params;
+    try {
+        await prisma.book.delete({
+            where: { id: Number(id) },
+        });
+        res.json({ message: 'Book deleted successfully' });
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        console.error('Error deleting book:', err);
+        res.status(500).json({
+            error: 'An error occurred while deleting the book.',
+            details: err.message
+        });
+    }
 };
 
-module.exports = { getBooks, getBookById, createBook, updateBook, deleteBook };
+module.exports = {
+    createBook,
+    getAllBooks,
+    getBookById,
+    updateBook,
+    deleteBook
+};

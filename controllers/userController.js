@@ -1,111 +1,159 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-const saltRounds = 10;
+const createUser = async (req, res) => {
+    const { name, email, password } = req.body;
 
-// Register a new user
-const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword
+            }
+        });
+        res.status(201).json(user);
+    } catch (err) {
+        console.error('Error creating user:', err);
+        res.status(500).json({
+            error: 'An error occurred while creating the user.',
+            details: err.message
+        });
+    }
 };
-
-// Login a user
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.json({ token });
-    } else {
-      res.status(401).json({ error: 'Invalid credentials' });
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
     }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+
+    try {
+        // Find user by email
+        const user = await prisma.user.findUnique({
+            where: { email }
+        });
+
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Compare passwords
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+            expiresIn: '1h' // Token expires in 1 hour
+        });
+
+        res.json({ token });
+    } catch (err) {
+        console.error('Error logging in user:', err);
+        res.status(500).json({
+            error: 'An error occurred while logging in the user.',
+            details: err.message
+        });
+    }
+};
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany();
+        res.json(users);
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.status(500).json({
+            error: 'An error occurred while fetching users.',
+            details: err.message
+        });
+    }
 };
 
-// Get all users
-const getUsers = async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get a user by ID
 const getUserById = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: Number(id) },
-    });
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.status(404).json({ error: 'User not found' });
+    const { id } = req.params;
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: Number(id) },
+        });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error('Error fetching user by ID:', err);
+        res.status(500).json({
+            error: 'An error occurred while fetching the user.',
+            details: err.message
+        });
     }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
-// Update a user
 const updateUser = async (req, res) => {
-  const { id } = req.params;
-  const { name, email, password } = req.body;
-  try {
-    const updatedData = {
-      name,
-      email,
-    };
+    const { id } = req.params;
+    const { name, email, password } = req.body;
 
-    if (password) {
-      updatedData.password = await bcrypt.hash(password, saltRounds);
+    if (!id || !name || !email || !password) {
+        return res.status(400).json({ error: 'ID, name, email, and password are required' });
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: Number(id) },
-      data: updatedData,
-    });
-
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await prisma.user.update({
+            where: { id: Number(id) },
+            data: {
+                name,
+                email,
+                password: hashedPassword
+            }
+        });
+        res.json(user);
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        console.error('Error updating user:', err);
+        res.status(500).json({
+            error: 'An error occurred while updating the user.',
+            details: err.message
+        });
+    }
 };
 
-// Delete a user
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
-  try {
-    await prisma.user.delete({
-      where: { id: Number(id) },
-    });
-    res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const { id } = req.params;
+    try {
+        await prisma.user.delete({
+            where: { id: Number(id) },
+        });
+        res.json({ message: 'User deleted successfully' });
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        console.error('Error deleting user:', err);
+        res.status(500).json({
+            error: 'An error occurred while deleting the user.',
+            details: err.message
+        });
+    }
 };
 
-module.exports = { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser };
+module.exports = {
+    createUser,
+    loginUser,
+    getAllUsers,
+    getUserById,
+    updateUser,
+    deleteUser
+};

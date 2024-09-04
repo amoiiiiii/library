@@ -1,19 +1,50 @@
 const express = require('express');
 const router = express.Router();
-const { getBooks, getBookById, createBook, updateBook, deleteBook } = require('../controllers/bookController');
+const bookController = require('../controllers/bookController');
+const authenticateToken = require('../middlewares/authenticateToken');
+
 /**
  * @swagger
  * tags:
- *   name: Books
+ *   name: Book
  *   description: Book management
  */
 
 /**
  * @swagger
  * /books:
+ *   post:
+ *     summary: Create a new book
+ *     tags: [Book]
+ *     security:
+ *       - Bearer: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Book title
+ *                 example: The Great Gatsby
+ *               authorId:
+ *                 type: integer
+ *                 description: ID of the author
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Book created
+ */
+router.post('/books', authenticateToken, bookController.createBook);
+
+/**
+ * @swagger
+ * /books:
  *   get:
  *     summary: Get all books
- *     tags: [Books]
+ *     tags: [Book]
  *     responses:
  *       200:
  *         description: List of books
@@ -26,40 +57,32 @@ const { getBooks, getBookById, createBook, updateBook, deleteBook } = require('.
  *                 properties:
  *                   id:
  *                     type: integer
- *                     example: 1
+ *                     description: Book ID
  *                   title:
  *                     type: string
- *                     example: The Great Gatsby
+ *                     description: Book title
  *                   authorId:
  *                     type: integer
- *                     example: 1
- *                   categoryId:
- *                     type: integer
- *                     example: 1
- *                   publishedDate:
- *                     type: string
- *                     format: date
- *                     example: 1925-04-10
- *       500:
- *         description: Internal server error
+ *                     description: Author ID
  */
+router.get('/books', bookController.getAllBooks);
 
 /**
  * @swagger
  * /books/{id}:
  *   get:
- *     summary: Get a book by ID
- *     tags: [Books]
+ *     summary: Get book by ID
+ *     tags: [Book]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Book ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: Book found
+ *         description: Book details
  *         content:
  *           application/json:
  *             schema:
@@ -67,72 +90,31 @@ const { getBooks, getBookById, createBook, updateBook, deleteBook } = require('.
  *               properties:
  *                 id:
  *                   type: integer
- *                   example: 1
+ *                   description: Book ID
  *                 title:
  *                   type: string
- *                   example: The Great Gatsby
+ *                   description: Book title
  *                 authorId:
  *                   type: integer
- *                   example: 1
- *                 categoryId:
- *                   type: integer
- *                   example: 1
- *                 publishedDate:
- *                   type: string
- *                   format: date
- *                   example: 1925-04-10
- *       404:
- *         description: Book not found
- *       500:
- *         description: Internal server error
+ *                   description: Author ID
  */
-
-/**
- * @swagger
- * /books:
- *   post:
- *     summary: Create a new book
- *     tags: [Books]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *                 example: The Great Gatsby
- *               authorId:
- *                 type: integer
- *                 example: 1
- *               categoryId:
- *                 type: integer
- *                 example: 1
- *               publishedDate:
- *                 type: string
- *                 format: date
- *                 example: 1925-04-10
- *     responses:
- *       201:
- *         description: Book created successfully
- *       500:
- *         description: Internal server error
- */
+router.get('/:id', bookController.getBookById);
 
 /**
  * @swagger
  * /books/{id}:
  *   put:
- *     summary: Update a book
- *     tags: [Books]
+ *     summary: Update book by ID
+ *     tags: [Book]
+ *     security:
+ *       - Bearer: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Book ID
  *         schema:
  *           type: integer
- *           example: 1
  *     requestBody:
  *       required: true
  *       content:
@@ -142,51 +124,37 @@ const { getBooks, getBookById, createBook, updateBook, deleteBook } = require('.
  *             properties:
  *               title:
  *                 type: string
+ *                 description: New book title
  *                 example: The Great Gatsby
  *               authorId:
  *                 type: integer
+ *                 description: ID of the author
  *                 example: 1
- *               categoryId:
- *                 type: integer
- *                 example: 1
- *               publishedDate:
- *                 type: string
- *                 format: date
- *                 example: 1925-04-10
  *     responses:
  *       200:
- *         description: Book updated successfully
- *       404:
- *         description: Book not found
- *       500:
- *         description: Internal server error
+ *         description: Book updated
  */
+router.put('/:id', authenticateToken, bookController.updateBook);
 
 /**
  * @swagger
  * /books/{id}:
  *   delete:
- *     summary: Delete a book
- *     tags: [Books]
+ *     summary: Delete book by ID
+ *     tags: [Book]
+ *     security:
+ *       - Bearer: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Book ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: Book deleted successfully
- *       404:
- *         description: Book not found
- *       500:
- *         description: Internal server error
+ *         description: Book deleted
  */
-router.get('/books', getBooks);
-router.get('/:id', getBookById);
-router.post('/', createBook);
-router.put('/:id', updateBook);
-router.delete('/:id', deleteBook);
+router.delete('/:id', authenticateToken, bookController.deleteBook);
 
 module.exports = router;

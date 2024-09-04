@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser } = require('../controllers/userController');
+const userController = require('../controllers/userController');
 
 /**
  * @swagger
  * tags:
- *   name: Users
+ *   name: User
  *   description: User management
  */
 
 /**
  * @swagger
- * /users/register:
+ * /users:
  *   post:
- *     summary: Register a new user
- *     tags: [Users]
+ *     summary: Create a new user
+ *     tags: [User]
  *     requestBody:
  *       required: true
  *       content:
@@ -22,28 +22,26 @@ const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser }
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               username:
  *                 type: string
- *                 example: John Doe
- *               email:
- *                 type: string
- *                 example: john.doe@example.com
+ *                 description: Username of the user
+ *                 example: john_doe
  *               password:
  *                 type: string
+ *                 description: Password of the user
  *                 example: password123
  *     responses:
  *       201:
- *         description: User registered successfully
- *       500:
- *         description: Internal server error
+ *         description: User created
  */
+router.post('/users', userController.createUser);
 
 /**
  * @swagger
- * /users/login:
+ * /login:
  *   post:
- *     summary: Login user
- *     tags: [Users]
+ *     summary: User login
+ *     tags: [User]
  *     requestBody:
  *       required: true
  *       content:
@@ -51,11 +49,13 @@ const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser }
  *           schema:
  *             type: object
  *             properties:
- *               email:
+ *               username:
  *                 type: string
- *                 example: john.doe@example.com
+ *                 description: Username of the user
+ *                 example: john_doe
  *               password:
  *                 type: string
+ *                 description: Password of the user
  *                 example: password123
  *     responses:
  *       200:
@@ -67,19 +67,16 @@ const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser }
  *               properties:
  *                 token:
  *                   type: string
- *                   example: jwt-token-here
- *       401:
- *         description: Invalid credentials
- *       500:
- *         description: Internal server error
+ *                   description: Authentication token
  */
+router.post('/login', userController.loginUser);
 
 /**
  * @swagger
  * /users:
  *   get:
  *     summary: Get all users
- *     tags: [Users]
+ *     tags: [User]
  *     responses:
  *       200:
  *         description: List of users
@@ -92,33 +89,29 @@ const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser }
  *                 properties:
  *                   id:
  *                     type: integer
- *                     example: 1
- *                   name:
+ *                     description: User ID
+ *                   username:
  *                     type: string
- *                     example: John Doe
- *                   email:
- *                     type: string
- *                     example: john.doe@example.com
- *       500:
- *         description: Internal server error
+ *                     description: Username
  */
+router.get('/users', userController.getAllUsers);
 
 /**
  * @swagger
  * /users/{id}:
  *   get:
- *     summary: Get a user by ID
- *     tags: [Users]
+ *     summary: Get user by ID
+ *     tags: [User]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: User ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: User found
+ *         description: User details
  *         content:
  *           application/json:
  *             schema:
@@ -126,32 +119,26 @@ const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser }
  *               properties:
  *                 id:
  *                   type: integer
- *                   example: 1
- *                 name:
+ *                   description: User ID
+ *                 username:
  *                   type: string
- *                   example: John Doe
- *                 email:
- *                   type: string
- *                   example: john.doe@example.com
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *                   description: Username
  */
+router.get('/users/:id', userController.getUserById);
 
 /**
  * @swagger
  * /users/{id}:
  *   put:
- *     summary: Update a user
- *     tags: [Users]
+ *     summary: Update user by ID
+ *     tags: [User]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: User ID
  *         schema:
  *           type: integer
- *           example: 1
  *     requestBody:
  *       required: true
  *       content:
@@ -159,51 +146,37 @@ const { registerUser, loginUser, getUsers, getUserById, updateUser, deleteUser }
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               username:
  *                 type: string
- *                 example: John Doe
- *               email:
- *                 type: string
- *                 example: john.doe@example.com
+ *                 description: New username
+ *                 example: john_smith
  *               password:
  *                 type: string
+ *                 description: New password
  *                 example: newpassword123
  *     responses:
  *       200:
- *         description: User updated successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *         description: User updated
  */
+router.put('/users/:id', userController.updateUser);
 
 /**
  * @swagger
  * /users/{id}:
  *   delete:
- *     summary: Delete a user
- *     tags: [Users]
+ *     summary: Delete user by ID
+ *     tags: [User]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: User ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: User deleted successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *         description: User deleted
  */
-
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.get('/', getUsers);
-router.get('/:id', getUserById);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.delete('/users/:id', userController.deleteUser);
 
 module.exports = router;

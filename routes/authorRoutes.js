@@ -1,19 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const { getAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor } = require('../controllers/authorController');
+const authorController = require('../controllers/authorController');
+
 /**
  * @swagger
  * tags:
- *   name: Authors
+ *   name: Author
  *   description: Author management
  */
 
 /**
  * @swagger
- * /authors:
+ * /author:
+ *   post:
+ *     summary: Create a new author
+ *     tags: [Author]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Author's name
+ *                 example: J.K. Rowling
+ *     responses:
+ *       201:
+ *         description: Author created
+ */
+router.post('/author', authorController.createAuthor);
+
+/**
+ * @swagger
+ * /author:
  *   get:
  *     summary: Get all authors
- *     tags: [Authors]
+ *     tags: [Author]
  *     responses:
  *       200:
  *         description: List of authors
@@ -26,30 +50,29 @@ const { getAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor } = 
  *                 properties:
  *                   id:
  *                     type: integer
- *                     example: 1
+ *                     description: Author ID
  *                   name:
  *                     type: string
- *                     example: F. Scott Fitzgerald
- *       500:
- *         description: Internal server error
+ *                     description: Author's name
  */
+router.get('/author', authorController.getAllAuthors);
 
 /**
  * @swagger
  * /authors/{id}:
  *   get:
- *     summary: Get an author by ID
- *     tags: [Authors]
+ *     summary: Get author by ID
+ *     tags: [Author]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Author ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: Author found
+ *         description: Author details
  *         content:
  *           application/json:
  *             schema:
@@ -57,52 +80,26 @@ const { getAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor } = 
  *               properties:
  *                 id:
  *                   type: integer
- *                   example: 1
+ *                   description: Author ID
  *                 name:
  *                   type: string
- *                   example: F. Scott Fitzgerald
- *       404:
- *         description: Author not found
- *       500:
- *         description: Internal server error
+ *                   description: Author's name
  */
-
-/**
- * @swagger
- * /authors:
- *   post:
- *     summary: Create a new author
- *     tags: [Authors]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: F. Scott Fitzgerald
- *     responses:
- *       201:
- *         description: Author created successfully
- *       500:
- *         description: Internal server error
- */
+router.get('/authors/:id', authorController.getAuthorById);
 
 /**
  * @swagger
  * /authors/{id}:
  *   put:
- *     summary: Update an author
- *     tags: [Authors]
+ *     summary: Update author by ID
+ *     tags: [Author]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Author ID
  *         schema:
  *           type: integer
- *           example: 1
  *     requestBody:
  *       required: true
  *       content:
@@ -112,42 +109,31 @@ const { getAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor } = 
  *             properties:
  *               name:
  *                 type: string
- *                 example: F. Scott Fitzgerald
+ *                 description: Author's new name
+ *                 example: J.K. Rowling
  *     responses:
  *       200:
- *         description: Author updated successfully
- *       404:
- *         description: Author not found
- *       500:
- *         description: Internal server error
+ *         description: Author updated
  */
+router.put('/authors/:id', authorController.updateAuthor);
 
 /**
  * @swagger
  * /authors/{id}:
  *   delete:
- *     summary: Delete an author
- *     tags: [Authors]
+ *     summary: Delete author by ID
+ *     tags: [Author]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Author ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: Author deleted successfully
- *       404:
- *         description: Author not found
- *       500:
- *         description: Internal server error
+ *         description: Author deleted
  */
-
-router.get('/authors', getAuthors);
-router.get('/:id', getAuthorById);
-router.post('/authors', createAuthor);
-router.put('/:id', updateAuthor);
-router.delete('/:id', deleteAuthor);
+router.delete('/authors/:id', authorController.deleteAuthor);
 
 module.exports = router;

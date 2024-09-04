@@ -1,19 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('../controllers/categoryController');
+const categoryController = require('../controllers/categoryController');
+
 /**
  * @swagger
  * tags:
- *   name: Categories
+ *   name: Category
  *   description: Category management
  */
 
 /**
  * @swagger
  * /categories:
+ *   post:
+ *     summary: Create a new category
+ *     tags: [Category]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *                 example: Fiction
+ *     responses:
+ *       201:
+ *         description: Category created
+ */
+router.post('/categories', categoryController.createCategory);
+
+/**
+ * @swagger
+ * /categories:
  *   get:
  *     summary: Get all categories
- *     tags: [Categories]
+ *     tags: [Category]
  *     responses:
  *       200:
  *         description: List of categories
@@ -26,30 +50,29 @@ const { getCategories, getCategoryById, createCategory, updateCategory, deleteCa
  *                 properties:
  *                   id:
  *                     type: integer
- *                     example: 1
+ *                     description: Category ID
  *                   name:
  *                     type: string
- *                     example: Fiction
- *       500:
- *         description: Internal server error
+ *                     description: Category name
  */
+router.get('/categories', categoryController.getAllCategories);
 
 /**
  * @swagger
  * /categories/{id}:
  *   get:
- *     summary: Get a category by ID
- *     tags: [Categories]
+ *     summary: Get category by ID
+ *     tags: [Category]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Category ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: Category found
+ *         description: Category details
  *         content:
  *           application/json:
  *             schema:
@@ -57,52 +80,26 @@ const { getCategories, getCategoryById, createCategory, updateCategory, deleteCa
  *               properties:
  *                 id:
  *                   type: integer
- *                   example: 1
+ *                   description: Category ID
  *                 name:
  *                   type: string
- *                   example: Fiction
- *       404:
- *         description: Category not found
- *       500:
- *         description: Internal server error
+ *                   description: Category name
  */
-
-/**
- * @swagger
- * /categories:
- *   post:
- *     summary: Create a new category
- *     tags: [Categories]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: Fiction
- *     responses:
- *       201:
- *         description: Category created successfully
- *       500:
- *         description: Internal server error
- */
+router.get('/categories/:id', categoryController.getCategoryById);
 
 /**
  * @swagger
  * /categories/{id}:
  *   put:
- *     summary: Update a category
- *     tags: [Categories]
+ *     summary: Update category by ID
+ *     tags: [Category]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Category ID
  *         schema:
  *           type: integer
- *           example: 1
  *     requestBody:
  *       required: true
  *       content:
@@ -112,41 +109,31 @@ const { getCategories, getCategoryById, createCategory, updateCategory, deleteCa
  *             properties:
  *               name:
  *                 type: string
- *                 example: Fiction
+ *                 description: New category name
+ *                 example: Science Fiction
  *     responses:
  *       200:
- *         description: Category updated successfully
- *       404:
- *         description: Category not found
- *       500:
- *         description: Internal server error
+ *         description: Category updated
  */
+router.put('/categories/:id', categoryController.updateCategory);
 
 /**
  * @swagger
  * /categories/{id}:
  *   delete:
- *     summary: Delete a category
- *     tags: [Categories]
+ *     summary: Delete category by ID
+ *     tags: [Category]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
+ *         description: Category ID
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: Category deleted successfully
- *       404:
- *         description: Category not found
- *       500:
- *         description: Internal server error
+ *         description: Category deleted
  */
-router.get('/', getCategories);
-router.get('/:id', getCategoryById);
-router.post('/', createCategory);
-router.put('/:id', updateCategory);
-router.delete('/:id', deleteCategory);
+router.delete('/categories/:id', categoryController.deleteCategory);
 
 module.exports = router;

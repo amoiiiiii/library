@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const authorRoutes = require('./routes/authorRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const bookBorrowRoutes = require('./routes/bookBorrowRoutes');
 
 const app = express();
 
@@ -55,9 +56,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerSetup, swaggerUiSetup);
 
 app.use('/api/users', userRoutes);
-app.use('/api/books', bookRoutes);
-app.use(authorRoutes);
-app.use('/api/categories', categoryRoutes);
+app.use( authorRoutes);
+app.use(categoryRoutes);
+app.use('/api/book-borrow', bookBorrowRoutes);
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {

@@ -1,72 +1,106 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Get all authors
-const getAuthors = async (req, res) => {
-  try {
-    const authors = await prisma.author.findMany();
-    res.status(200).json(authors);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get a single author by ID
-const getAuthorById = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const author = await prisma.author.findUnique({
-      where: { id: Number(id) },
-    });
-    if (author) {
-      res.status(200).json(author);
-    } else {
-      res.status(404).json({ error: 'Author not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Create a new author
 const createAuthor = async (req, res) => {
-  const { name } = req.body;
-  try {
-    const newAuthor = await prisma.author.create({
-      data: { name },
-    });
-    res.status(201).json(newAuthor);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    const { name } = req.body;
 
-// Update an author
+    if (!name) {
+        return res.status(400).json({ error: 'Name is required' });
+    }
+
+    try {
+        const author = await prisma.author.create({
+            data: { name }
+        });
+        res.status(201).json(author);
+    } catch (err) {
+        console.error('Error creating author:', err);
+        res.status(500).json({ error: 'An error occurred while creating the author.', details: err.message });
+    }
+};
+const getAllAuthors = async (req, res) => {
+    console.log('Fetching all authors');
+    try {
+        const authors = await prisma.author.findMany({
+        });
+        console.log('Authors fetched:', authors);
+        res.json(authors);
+    } catch (err) {
+        console.error('Error fetching authors:', err);
+        res.status(500).json({
+            error: 'An error occurred while fetching authors.',
+            details: err.message
+        });
+    }
+};
+const getAuthorById = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Valid ID is required' });
+    }
+
+    try {
+        const author = await prisma.author.findUnique({
+            where: { id: parseInt(id, 10) }
+        });
+        if (!author) {
+            return res.status(404).json({ error: 'Author not found' });
+        }
+        res.json(author);
+    } catch (err) {
+        console.error('Error fetching author by ID:', err);
+        res.status(500).json({ error: 'An error occurred while fetching the author.', details: err.message });
+    }
+};
 const updateAuthor = async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  try {
-    const updatedAuthor = await prisma.author.update({
-      where: { id: Number(id) },
-      data: { name },
-    });
-    res.status(200).json(updatedAuthor);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!id || !name || isNaN(id)) {
+        return res.status(400).json({ error: 'Valid ID and name are required' });
+    }
+
+    try {
+        const author = await prisma.author.update({
+            where: { id: parseInt(id, 10) },
+            data: { name }
+        });
+        res.json(author);
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ error: 'Author not found' });
+        }
+        console.error('Error updating author:', err);
+        res.status(500).json({ error: 'An error occurred while updating the author.', details: err.message });
+    }
 };
 
-// Delete an author
 const deleteAuthor = async (req, res) => {
-  const { id } = req.params;
-  try {
-    await prisma.author.delete({
-      where: { id: Number(id) },
-    });
-    res.status(200).json({ message: 'Author deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const { id } = req.params;
+
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Valid ID is required' });
+    }
+
+    try {
+        await prisma.author.delete({
+            where: { id: parseInt(id, 10) }
+        });
+        res.json({ message: 'Author deleted successfully' });
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ error: 'Author not found' });
+        }
+        console.error('Error deleting author:', err);
+        res.status(500).json({ error: 'An error occurred while deleting the author.', details: err.message });
+    }
 };
 
-module.exports = { getAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor };
+module.exports = {
+    createAuthor,
+    getAllAuthors,
+    getAuthorById,
+    updateAuthor,
+    deleteAuthor
+};
