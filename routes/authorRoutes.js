@@ -11,7 +11,7 @@ const authorController = require('../controllers/authorController');
 
 /**
  * @swagger
- * /author:
+ * /authors:
  *   post:
  *     summary: Create a new author
  *     tags: [Author]
@@ -30,11 +30,11 @@ const authorController = require('../controllers/authorController');
  *       201:
  *         description: Author created
  */
-router.post('/author', authorController.createAuthor);
+router.post('/authors', authorController.createAuthor);
 
 /**
  * @swagger
- * /author:
+ * /authors:
  *   get:
  *     summary: Get all authors
  *     tags: [Author]
@@ -55,7 +55,7 @@ router.post('/author', authorController.createAuthor);
  *                     type: string
  *                     description: Author's name
  */
-router.get('/author', authorController.getAllAuthors);
+router.get('/authors', authorController.getAllAuthors);
 
 /**
  * @swagger

@@ -94,7 +94,7 @@ router.post('/login', userController.loginUser);
  *                     type: string
  *                     description: Username
  */
-router.get('/users', userController.getAllUsers);
+router.get('/', userController.getAllUsers);
 
 /**
  * @swagger

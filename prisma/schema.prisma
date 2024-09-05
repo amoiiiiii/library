@@ -12,41 +12,41 @@ model User {
   name      String
   email     String    @unique
   password  String
-  books     Book[]
+  books     Book[]    @relation("UserBooks")
   borrows   Borrow[]
 }
 
 model Author {
   id        Int       @id @default(autoincrement())
-  name      String
+  name      String    @unique
   books     Book[]
 }
 
 model Category {
   id        Int       @id @default(autoincrement())
-  name      String
+  name      String    @unique
   books     Book[]
 }
 
 model Book {
-  id        Int       @id @default(autoincrement())
-  title     String
-  authorId  Int
+  id         Int       @id @default(autoincrement())
+  title      String
+  authorId   Int
   categoryId Int
-  qty       Int
-  author    Author    @relation(fields: [authorId], references: [id])
-  category  Category  @relation(fields: [categoryId], references: [id])
-  userId    Int?
-  user      User?     @relation(fields: [userId], references: [id])
-  borrows   Borrow[]
+  qty        Int       @default(0) @min(0)
+  author     Author    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId     Int?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull, name: "UserBooks")
+  borrows    Borrow[]
 }
 
 model Borrow {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  bookId    Int
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  bookId     Int
   borrowDate DateTime
   returnDate DateTime?
-  user      User      @relation(fields: [userId], references: [id])
-  book      Book      @relation(fields: [bookId], references: [id])
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
 }
