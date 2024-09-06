@@ -37,7 +37,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
  *       201:
  *         description: Book borrowed
  */
-router.post('/borrow', authenticateToken, borrowController.borrowBook);
+router.post('/', authenticateToken, borrowController.borrowBook);
 
 /**
  * @swagger
@@ -58,6 +58,6 @@ router.post('/borrow', authenticateToken, borrowController.borrowBook);
  *       200:
  *         description: Book returned
  */
-router.put('/borrow/return/:id', authenticateToken, borrowController.returnBook);
+router.put('/return/:id', authenticateToken, borrowController.returnBook);
 
 module.exports = router;

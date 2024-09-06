@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 const createBook = async (req, res) => {
     const { title, authorId, categoryId, qty } = req.body;
-    const userId = req.user.id; // Menggunakan userId dari token
+    const userId = req.user.id;
 
     if (!title || !authorId || !categoryId || qty === undefined) {
         return res.status(400).json({ error: 'Title, authorId, categoryId, and qty are required' });
@@ -16,16 +16,13 @@ const createBook = async (req, res) => {
                 author: { connect: { id: Number(authorId) } },
                 category: { connect: { id: Number(categoryId) } },
                 qty,
-                user: { connect: { id: Number(userId) } } // Menyimpan user yang membuat buku
+                user: { connect: { id: Number(userId) } }
             }
         });
         res.status(201).json(book);
     } catch (err) {
         console.error('Error creating book:', err);
-        res.status(500).json({
-            error: 'An error occurred while creating the book.',
-            details: err.message
-        });
+        res.status(500).json({ error: 'An error occurred while creating the book.', details: err.message });
     }
 };
 
@@ -35,16 +32,13 @@ const getAllBooks = async (req, res) => {
             include: {
                 author: true,
                 category: true,
-                user: true // Menampilkan user yang membuat buku
+                user: true
             }
         });
         res.json(books);
     } catch (err) {
         console.error('Error fetching books:', err);
-        res.status(500).json({
-            error: 'An error occurred while fetching books.',
-            details: err.message
-        });
+        res.status(500).json({ error: 'An error occurred while fetching books.', details: err.message });
     }
 };
 
@@ -57,7 +51,7 @@ const getBookById = async (req, res) => {
 
     try {
         const book = await prisma.book.findUnique({
-            where: { id: parseInt(id, 10) }, // Ensure `id` is an integer
+            where: { id: parseInt(id, 10) },
             include: {
                 author: true,
                 category: true,
@@ -72,11 +66,7 @@ const getBookById = async (req, res) => {
         res.json(book);
     } catch (err) {
         console.error('Error fetching book by ID:', err);
-        console.log('ID received:', id);
-        res.status(500).json({
-            error: 'An error occurred while fetching the book.',
-            details: err.message
-        });
+        res.status(500).json({ error: 'An error occurred while fetching the book.', details: err.message });
     }
 };
 
@@ -104,18 +94,20 @@ const updateBook = async (req, res) => {
             return res.status(404).json({ error: 'Book not found' });
         }
         console.error('Error updating book:', err);
-        res.status(500).json({
-            error: 'An error occurred while updating the book.',
-            details: err.message
-        });
+        res.status(500).json({ error: 'An error occurred while updating the book.', details: err.message });
     }
 };
 
 const deleteBook = async (req, res) => {
     const { id } = req.params;
+
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Valid ID is required' });
+    }
+
     try {
         await prisma.book.delete({
-            where: { id: Number(id) },
+            where: { id: parseInt(id, 10) }
         });
         res.json({ message: 'Book deleted successfully' });
     } catch (err) {
@@ -123,10 +115,7 @@ const deleteBook = async (req, res) => {
             return res.status(404).json({ error: 'Book not found' });
         }
         console.error('Error deleting book:', err);
-        res.status(500).json({
-            error: 'An error occurred while deleting the book.',
-            details: err.message
-        });
+        res.status(500).json({ error: 'An error occurred while deleting the book.', details: err.message });
     }
 };
 

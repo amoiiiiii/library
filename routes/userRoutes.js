@@ -24,52 +24,17 @@ const userController = require('../controllers/userController');
  *             properties:
  *               username:
  *                 type: string
- *                 description: Username of the user
- *                 example: john_doe
+ *                 description: User's username
+ *                 example: johndoe
  *               password:
  *                 type: string
- *                 description: Password of the user
+ *                 description: User's password
  *                 example: password123
  *     responses:
  *       201:
  *         description: User created
  */
-router.post('/users', userController.createUser);
-
-/**
- * @swagger
- * /login:
- *   post:
- *     summary: User login
- *     tags: [User]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 description: Username of the user
- *                 example: john_doe
- *               password:
- *                 type: string
- *                 description: Password of the user
- *                 example: password123
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   description: Authentication token
- */
-router.post('/login', userController.loginUser);
+router.post('/', userController.createUser);
 
 /**
  * @swagger
@@ -92,7 +57,7 @@ router.post('/login', userController.loginUser);
  *                     description: User ID
  *                   username:
  *                     type: string
- *                     description: Username
+ *                     description: User's username
  */
 router.get('/', userController.getAllUsers);
 
@@ -122,23 +87,16 @@ router.get('/', userController.getAllUsers);
  *                   description: User ID
  *                 username:
  *                   type: string
- *                   description: Username
+ *                   description: User's username
  */
-router.get('/users/:id', userController.getUserById);
+router.get('/:id', userController.getUserById);
 
 /**
  * @swagger
- * /users/{id}:
- *   put:
- *     summary: Update user by ID
+ * /login:
+ *   post:
+ *     summary: User login
  *     tags: [User]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: User ID
- *         schema:
- *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -148,35 +106,26 @@ router.get('/users/:id', userController.getUserById);
  *             properties:
  *               username:
  *                 type: string
- *                 description: New username
- *                 example: john_smith
+ *                 description: User's username
+ *                 example: johndoe
  *               password:
  *                 type: string
- *                 description: New password
- *                 example: newpassword123
+ *                 description: User's password
+ *                 example: password123
  *     responses:
  *       200:
- *         description: User updated
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Authentication token
+ *       401:
+ *         description: Invalid credentials
  */
-router.put('/users/:id', userController.updateUser);
-
-/**
- * @swagger
- * /users/{id}:
- *   delete:
- *     summary: Delete user by ID
- *     tags: [User]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: User ID
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: User deleted
- */
-router.delete('/users/:id', userController.deleteUser);
+router.post('/login', userController.loginUser);
 
 module.exports = router;

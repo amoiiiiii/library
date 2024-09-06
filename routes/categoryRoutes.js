@@ -30,7 +30,7 @@ const categoryController = require('../controllers/categoryController');
  *       201:
  *         description: Category created
  */
-router.post('/categories', categoryController.createCategory);
+router.post('/', categoryController.createCategory);
 
 /**
  * @swagger
@@ -55,7 +55,7 @@ router.post('/categories', categoryController.createCategory);
  *                     type: string
  *                     description: Category name
  */
-router.get('/categories', categoryController.getAllCategories);
+router.get('/', categoryController.getAllCategories);
 
 /**
  * @swagger
@@ -85,55 +85,6 @@ router.get('/categories', categoryController.getAllCategories);
  *                   type: string
  *                   description: Category name
  */
-router.get('/categories/:id', categoryController.getCategoryById);
-
-/**
- * @swagger
- * /categories/{id}:
- *   put:
- *     summary: Update category by ID
- *     tags: [Category]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Category ID
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: New category name
- *                 example: Science Fiction
- *     responses:
- *       200:
- *         description: Category updated
- */
-router.put('/categories/:id', categoryController.updateCategory);
-
-/**
- * @swagger
- * /categories/{id}:
- *   delete:
- *     summary: Delete category by ID
- *     tags: [Category]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Category ID
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Category deleted
- */
-router.delete('/categories/:id', categoryController.deleteCategory);
+router.get('/:id', categoryController.getCategoryById);
 
 module.exports = router;

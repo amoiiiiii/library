@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bookController = require('../controllers/bookController');
 const authenticateToken = require('../middlewares/authenticateToken');
+const isAdmin = require('../middlewares/isAdmin'); // Import middleware admin
 
 /**
  * @swagger
@@ -37,7 +38,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
  *       201:
  *         description: Book created
  */
-router.post('/books', authenticateToken, bookController.createBook);
+router.post('/', authenticateToken, isAdmin, bookController.createBook);
 
 /**
  * @swagger
@@ -65,7 +66,7 @@ router.post('/books', authenticateToken, bookController.createBook);
  *                     type: integer
  *                     description: Author ID
  */
-router.get('/books', bookController.getAllBooks);
+router.get('/', bookController.getAllBooks);
 
 /**
  * @swagger
@@ -134,7 +135,7 @@ router.get('/:id', bookController.getBookById);
  *       200:
  *         description: Book updated
  */
-router.put('/:id', authenticateToken, bookController.updateBook);
+router.put('/:id', authenticateToken, isAdmin, bookController.updateBook);
 
 /**
  * @swagger
@@ -155,6 +156,6 @@ router.put('/:id', authenticateToken, bookController.updateBook);
  *       200:
  *         description: Book deleted
  */
-router.delete('/:id', authenticateToken, bookController.deleteBook);
+router.delete('/:id', authenticateToken, isAdmin, bookController.deleteBook);
 
 module.exports = router;
