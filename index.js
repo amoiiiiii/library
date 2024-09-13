@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const userRoutes = require('./routes/userRoutes');
 const bookRoutes = require('./routes/bookRoutes');
-const authorRoutes = require('./routes/authorRoutes');
+const authorRoutes = require('./routes/authorRoutes'); // Pastikan rute ini diimpor
 const categoryRoutes = require('./routes/categoryRoutes');
 const bookBorrowRoutes = require('./routes/bookBorrowRoutes');
 
@@ -24,7 +24,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:8081',
+        url: 'http://localhost:8082',
         description: 'Local server',
       },
     ],
@@ -43,7 +43,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./routes/**/*.js'], // Path to the file containing Swagger comments
+  apis: ['./routes/**/*.js'], // Path ke file yang mengandung komentar Swagger
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
@@ -56,11 +56,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerSetup, swaggerUiSetup);
 
 app.use('/api/users', userRoutes);
-app.use( authorRoutes);
-app.use(categoryRoutes);
+app.use('/api', authorRoutes); // Tambahkan path untuk authorRoutes
+app.use('/api/categories', categoryRoutes); // Pastikan pathnya benar
 app.use('/api/book-borrow', bookBorrowRoutes);
 
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 8082;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
