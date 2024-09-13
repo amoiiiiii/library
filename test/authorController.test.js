@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const authorController = require('../controllers/authorController'); // Sesuaikan path-nya
+const authorController = require('../controllers/authorController'); 
 
 jest.mock('@prisma/client', () => {
   const mockPrismaClient = {
@@ -20,7 +20,7 @@ describe('Author Controller Tests', () => {
 
   beforeEach(() => {
     prisma = new PrismaClient();
-    controller = authorController; // Menggunakan controller langsung
+    controller = authorController; 
   });
 
   test('should create an author', async () => {

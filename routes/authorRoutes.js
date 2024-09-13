@@ -30,7 +30,7 @@ const authorController = require('../controllers/authorController');
  *       201:
  *         description: Author created
  */
-router.post('/authors', authorController.createAuthor);
+router.post('/', authorController.createAuthor);
 
 /**
  * @swagger
@@ -55,7 +55,7 @@ router.post('/authors', authorController.createAuthor);
  *                     type: string
  *                     description: Author's name
  */
-router.get('/authors', authorController.getAllAuthors);
+router.get('/', authorController.getAllAuthors);
 
 /**
  * @swagger
@@ -85,7 +85,7 @@ router.get('/authors', authorController.getAllAuthors);
  *                   type: string
  *                   description: Author's name
  */
-router.get('/authors/:id', authorController.getAuthorById);
+router.get('/:id', authorController.getAuthorById);
 
 /**
  * @swagger
@@ -115,7 +115,7 @@ router.get('/authors/:id', authorController.getAuthorById);
  *       200:
  *         description: Author updated
  */
-router.put('/authors/:id', authorController.updateAuthor);
+router.put('/:id', authorController.updateAuthor);
 
 /**
  * @swagger
@@ -134,6 +134,6 @@ router.put('/authors/:id', authorController.updateAuthor);
  *       200:
  *         description: Author deleted
  */
-router.delete('/authors/:id', authorController.deleteAuthor);
+router.delete('/:id', authorController.deleteAuthor);
 
 module.exports = router;

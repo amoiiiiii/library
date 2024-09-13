@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const bookController = require('../controllers/bookController'); // Sesuaikan path-nya
+const bookController = require('../controllers/bookController');
 
 jest.mock('@prisma/client', () => {
   const mockPrismaClient = {
@@ -20,7 +20,7 @@ describe('Book Controller Tests', () => {
 
   beforeEach(() => {
     prisma = new PrismaClient();
-    controller = bookController; // Menggunakan controller langsung
+    controller = bookController; 
   });
 
   test('should create a book', async () => {
@@ -31,7 +31,7 @@ describe('Book Controller Tests', () => {
         categoryId: 1,
         qty: 10
       },
-      user: { id: 2 } // Mock user ID from token
+      user: { id: 2 } 
     };
     const res = {
       status: jest.fn(() => res),

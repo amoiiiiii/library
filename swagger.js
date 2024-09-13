@@ -10,7 +10,7 @@ const swaggerOptions = {
       description: 'API documentation for the library system',
     },
   },
-  apis: ['./routes/*.js'], // Path ke file route Anda
+  apis: ['./routes/*.js'], 
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);

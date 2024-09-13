@@ -12,10 +12,10 @@ model User {
   name      String
   email     String    @unique
   password  String
+  role      UserRole
   books     Book[]    @relation("UserBooks")
   borrows   Borrow[]
 }
-
 model Author {
   id        Int       @id @default(autoincrement())
   name      String    @unique
@@ -33,11 +33,11 @@ model Book {
   title      String
   authorId   Int
   categoryId Int
-  qty        Int       @default(0) @min(0)
+  qty        Int       @default(0)
+  createdBy  Int?      // Ubah menjadi nullable
   author     Author    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  userId     Int?
-  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull, name: "UserBooks")
+  user       User?     @relation(fields: [createdBy], references: [id], onDelete: Cascade, name: "UserBooks")
   borrows    Borrow[]
 }
 
@@ -49,4 +49,9 @@ model Borrow {
   returnDate DateTime?
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
+
+enum UserRole {
+  admin
+  user
 }

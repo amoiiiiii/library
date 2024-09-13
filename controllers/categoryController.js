@@ -19,7 +19,7 @@ const createCategory = async (req, res) => {
 const getAllCategories = async (req, res) => {
     try {
         const categories = await prisma.category.findMany({
-            include: { books: true } // Display books associated with category
+            include: { books: true }
         });
         res.json(categories);
     } catch (err) {
@@ -36,7 +36,8 @@ const getCategoryById = async (req, res) => {
 
     try {
         const category = await prisma.category.findUnique({
-            where: { id: parseInt(id, 10) }
+            where: { id: parseInt(id, 10) },
+            include: { books: true }
         });
         if (!category) {
             return res.status(404).json({ error: 'Category not found' });
@@ -51,6 +52,7 @@ const getCategoryById = async (req, res) => {
 const updateCategory = async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
+
     if (!id || !name || isNaN(id)) {
         return res.status(400).json({ error: 'Valid ID and name are required' });
     }
