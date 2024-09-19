@@ -1,0 +1,58 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      UserRole
+  borrows   Borrow[]
+  books     Book[]   @relation("UserBooks")
+}
+
+model Author {
+  id        String @id @default(uuid())
+  name      String @unique
+  books     Book[]
+}
+
+model Category {
+  id        String @id @default(uuid())
+  name      String @unique
+  books     Book[]
+}
+
+model Book {
+  id         String    @id @default(uuid())
+  title      String
+  authorId   String
+  categoryId String
+  qty        Int       @default(0)
+  createdBy  String?
+  author     Author    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user       User?     @relation(fields: [createdBy], references: [id], onDelete: Cascade, name: "UserBooks")
+  borrows    Borrow[]
+}
+
+model Borrow {
+  id         String    @id @default(uuid())
+  userId     String
+  bookId     String
+  borrowDate DateTime
+  returnDate DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
+
+enum UserRole {
+  admin
+  user
+}
