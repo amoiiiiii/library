@@ -4,7 +4,8 @@ import {
   getAllBorrows,
   getBorrowById,
   updateBorrow,
-  deleteBorrow
+  deleteBorrow,
+  returnBorrow,
 } from '../controllers/borrowController';
 
 const router = Router();
@@ -167,5 +168,29 @@ router.put('/:id', updateBorrow);
  *         description: Internal server error
  */
 router.delete('/:id', deleteBorrow);
+
+/**
+ * @openapi
+ * /borrows/{id}/return:
+ *   post:
+ *     summary: Return a borrowed book and update the book quantity
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the borrow record to return
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Book returned and quantity updated successfully
+ *       404:
+ *         description: Borrow record not found
+ *       500:
+ *         description: Internal server error
+ */  
+router.post('/:id/return', returnBorrow);
 
 export default router;

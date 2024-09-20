@@ -16,8 +16,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use(express.json());
 
 // Define your routes
-app.use('/api/users', userRoutes);
-app.use('/api/authors', authorRoutes);
+app.use(userRoutes);
+app.use('/authors', authorRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/borrows', borrowRoutes);

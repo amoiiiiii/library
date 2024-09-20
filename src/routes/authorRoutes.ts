@@ -6,6 +6,7 @@ import {
   updateAuthor,
   deleteAuthor
 } from '../controllers/authorController';
+import { isAdmin } from '../middlewares/authMiddleware'; // Import middleware
 
 const router = Router();
 
@@ -31,7 +32,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', createAuthor);
+router.post('/', isAdmin, createAuthor); // Tambahkan middleware isAdmin
 
 /**
  * @openapi
@@ -108,7 +109,7 @@ router.get('/:id', getAuthorById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', updateAuthor);
+router.put('/:id', isAdmin, updateAuthor); // Tambahkan middleware isAdmin
 
 /**
  * @openapi
@@ -128,6 +129,6 @@ router.put('/:id', updateAuthor);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', deleteAuthor);
+router.delete('/:id', isAdmin, deleteAuthor); // Tambahkan middleware isAdmin
 
 export default router;

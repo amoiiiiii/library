@@ -6,7 +6,7 @@ import {
   updateCategory,
   deleteCategory
 } from '../controllers/categoryController';
-
+import { isAdmin } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
@@ -33,7 +33,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', createCategory);
+router.post('/', isAdmin, createCategory);
 
 /**
  * @openapi
@@ -114,7 +114,7 @@ router.get('/:id', getCategoryById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', updateCategory);
+router.put('/:id', isAdmin, updateCategory);
 
 /**
  * @openapi
@@ -136,6 +136,6 @@ router.put('/:id', updateCategory);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', deleteCategory);
+router.delete('/:id', isAdmin, deleteCategory);
 
 export default router;

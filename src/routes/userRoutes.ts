@@ -5,8 +5,9 @@ import {
   getAllUsers,
   getUserById,
   updateUser,
-  deleteUser
+  deleteUser,
 } from '../controllers/userController';
+import { isAdmin } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -22,10 +23,15 @@ const router = Router();
  *           schema:
  *             type: object
  *             properties:
- *               username:
+ *               name:
+ *                 type: string
+ *               email:
  *                 type: string
  *               password:
  *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [admin, user]
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -34,7 +40,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/register', registerUser);
+router.post('/register', isAdmin, registerUser); // Only admins can create a user
 
 /**
  * @openapi
@@ -48,7 +54,7 @@ router.post('/register', registerUser);
  *           schema:
  *             type: object
  *             properties:
- *               username:
+ *               email:
  *                 type: string
  *               password:
  *                 type: string
@@ -72,17 +78,6 @@ router.post('/login', loginUser);
  *     responses:
  *       200:
  *         description: List of all users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   username:
- *                     type: string
  *       500:
  *         description: Internal server error
  */
@@ -133,17 +128,22 @@ router.get('/users/:id', getUserById);
  *           schema:
  *             type: object
  *             properties:
- *               username:
+ *               name:
+ *                 type: string
+ *               email:
  *                 type: string
  *               password:
  *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [admin, user]
  *     responses:
  *       200:
  *         description: User updated successfully
  *       500:
  *         description: Internal server error
  */
-router.put('/users/:id', updateUser);
+router.put('/users/:id', isAdmin, updateUser); // Only admins can update a user
 
 /**
  * @openapi
@@ -165,6 +165,6 @@ router.put('/users/:id', updateUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/users/:id', deleteUser);
+router.delete('/users/:id', isAdmin, deleteUser); // Only admins can delete a user
 
 export default router;

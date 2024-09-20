@@ -6,7 +6,7 @@ import {
   updateBook,
   deleteBook
 } from '../controllers/bookController';
-
+import { isAdmin } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
@@ -41,7 +41,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', createBook);
+router.post('/', isAdmin, createBook);
 
 /**
  * @openapi
@@ -130,7 +130,7 @@ router.get('/:id', getBookById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', updateBook);
+router.put('/:id', isAdmin, updateBook);
 
 /**
  * @openapi
@@ -152,6 +152,6 @@ router.put('/:id', updateBook);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', deleteBook);
+router.delete('/:id', isAdmin, deleteBook);
 
 export default router;
